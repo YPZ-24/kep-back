@@ -62,6 +62,12 @@ class MongoLib {
         }).then(result=>id)
     }
 
+    deleteMany(collection, query){
+        return this.connect().then(db=>{
+            return db.collection(collection).deleteMany(query)
+        }).then(result=>result.deletedCount)
+    }
+
     aggregate(collection, agreggateArray){
         return this.connect().then(db=>{
             return db.collection(collection).aggregate(agreggateArray).map((u)=>{

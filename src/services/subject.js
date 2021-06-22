@@ -30,6 +30,7 @@ class SubjectsService {
         const deletedSubjectId = await this.mongoDb.delete(this.collection, idSubject)
         return deletedSubjectId
     }
+    
 }
 
 export default SubjectsService;

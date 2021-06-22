@@ -5,11 +5,13 @@ import Boom from '@hapi/boom'
 import {ObjectId} from 'mongodb'
 import SubjectsService from "../services/subject";
 import { createSubjectSchema, updateSubjectSchema } from "../utils/schemas/subject";
+import QuestionsService from "../services/question";
 
 function subjectsApi(app){
     const router = Router();
     app.use('/api/subjects', router)
     const subjectsService = new SubjectsService()
+    const questionsService = new QuestionsService()
 
     router.get('/', routeHelper(async(req, res)=>{
         let subjects = await subjectsService.getSubjects({})
@@ -61,11 +63,13 @@ function subjectsApi(app){
         let query = {_id: ObjectId(idSubject)}
         let subjectFinded = await subjectsService.getSubject({query})
         if(!subjectFinded) throw Boom.badRequest('Subject does not exist');
-        //Eliminamos
+        //Eliminamos las preguntas
+        query = {idSubject: subjectFinded._id}
+        const deletedQuestionsCount = await questionsService.deleteQuestions({query})
         const deletedSubjectId = await subjectsService.deleteSubject({idSubject})
         res.status(200).json({
             data: deletedSubjectId,
-            message: `Subject deleted`
+            message: `Subject and ${deletedQuestionsCount} questions deleted`
         })
     }))
 

@@ -13,6 +13,38 @@ function usersApi(app){
     app.use('/api/users', router)
     const usersService = new UsersService()
 
+    router.get('/logged',  passport.authenticate('jwt', {session: false}), routeHelper((req,res)=>{
+        res.status(200).json({
+            statusCode: 200,
+            message: 'User finded',
+            data: req.user
+        })
+    }))
+
+    router.get('/admin', routeHelper(async (req,res)=>{
+        let query = {role: 'ADMIN'}
+        const users = await usersService.getUsers({query})
+        res.status(200).json({
+            statusCode: 200,
+            message: 'Admins finded',
+            data: users
+        })
+    }))
+
+    router.delete('/:idUser/admin', routeHelper(async (req,res)=>{
+        const {idUser} = req.params
+        let query =  {_id: ObjectId(idUser)}
+        const userExists = await usersService.getUser({query})
+        if(!userExists) throw Boom.badRequest('User does not exists');
+        let user = {role: ''}
+        const updatedUserId = await usersService.updateUser({idUser, user})
+        res.status(200).json({
+            statusCode: 200,
+            message: 'Admins deleted',
+            data: updatedUserId
+        })
+    }))
+
     router.get('/:idUser', passport.authenticate('jwt', {session: false}), routeHelper(async(req, res)=>{
         const {idUser} = req.params
         let query = {_id: ObjectId(idUser)}
@@ -55,6 +87,20 @@ function usersApi(app){
             statusCode: 201,
             message: 'User created',
             data: createdUserId
+        })
+    }))
+
+    router.put('/email/:email/role/admin', routeHelper(async(req,res)=>{
+        const {email} = req.params
+        let query =  {email: email}
+        const userExists = await usersService.getUser({query})
+        if(!userExists) throw Boom.badRequest('User does not exists');
+        const user = {role: 'ADMIN'}
+        const updatedUserId = await usersService.updateUser({idUser: userExists._id, user})
+        res.status(200).json({
+            statusCode: 200,
+            message: 'User role updated',
+            data: updatedUserId
         })
     }))
 

@@ -30,6 +30,12 @@ class QuestionsService {
         const deletedQuestionId = await this.mongoDb.delete(this.collection, idQuestion)
         return deletedQuestionId
     }
+
+    async deleteQuestions({query}){
+        console.log(query)
+        const deletedCount = await this.mongoDb.deleteMany(this.collection, query)
+        return deletedCount
+    }
 }
 
 export default QuestionsService;

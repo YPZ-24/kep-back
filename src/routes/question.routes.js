@@ -35,7 +35,6 @@ function questionsApi(app){
     
     router.get('/subject/:idSubject', routeHelper(async(req, res)=>{
         const {idSubject} = req.params
-        //60cc41f3e7b7c93304066bad
         let query = {idSubject: ObjectId(idSubject)}
         const questions = await questionsService.getQuestions({query})
         res.status(200).json({
